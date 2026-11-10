@@ -1,0 +1,15 @@
+[package]
+name = "threadkeep"
+description = "Threadkeep command line and the MCP server AI apps launch."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "threadkeep"
+path = "src/main.rs"
+
+[dependencies]
+threadkeep-core = { path = "../core" }
+serde_json.workspace = true

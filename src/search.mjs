@@ -14,7 +14,8 @@ const CJK = /[぀-ヿ㐀-鿿가-힯]/;
 function stem(w) {
   if (w.length > 5 && w.endsWith('ing')) return w.slice(0, -3);
   if (w.length > 4 && w.endsWith('ed')) return w.slice(0, -2);
-  if (w.length > 4 && w.endsWith('es')) return w.slice(0, -2);
+  // "boxes" -> "box", but "takes" -> "take": only strip "es" after a sibilant.
+  if (w.length > 4 && /(s|x|z|ch|sh)es$/.test(w)) return w.slice(0, -2);
   if (w.length > 3 && w.endsWith('s') && !w.endsWith('ss')) return w.slice(0, -1);
   return w;
 }

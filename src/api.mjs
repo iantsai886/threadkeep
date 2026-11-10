@@ -7,9 +7,10 @@ import { fileURLToPath } from 'node:url';
 import { readFile } from 'node:fs/promises';
 import { randomBytes, timingSafeEqual } from 'node:crypto';
 
-const UI_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'ui');
+// The built interface. ui/ itself holds the TypeScript source, which a browser cannot load.
+const UI_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'ui', 'dist');
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.woff2': 'font/woff2' };
-const FALLBACK = '<!doctype html><meta charset="utf-8"><title>Threadkeep</title><body style="font-family:system-ui;max-width:40rem;margin:4rem auto;line-height:1.5"><h1>Threadkeep is running</h1><p>The interface files are not installed yet (no <code>ui/index.html</code>). Everything is available from the command line: run <code>threadkeep help</code>.</p>';
+const FALLBACK = '<!doctype html><meta charset="utf-8"><title>Threadkeep</title><body style="font-family:system-ui;max-width:40rem;margin:4rem auto;line-height:1.5"><h1>Threadkeep is running</h1><p>The interface files are not installed yet (no <code>ui/dist/index.html</code>; run <code>npm run build</code> in <code>ui</code>). Everything is available from the command line: run <code>threadkeep help</code>.</p>';
 
 export function routes(ops) {
   const q = (url, k) => url.searchParams.get(k) || undefined;
