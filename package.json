@@ -1,0 +1,18 @@
+{
+  "name": "threadkeep",
+  "version": "0.1.0",
+  "description": "Threadkeep: a customer-controlled memory and work-continuity layer for AI assistants.",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "threadkeep": "bin/threadkeep.mjs"
+  },
+  "scripts": {
+    "test": "node --test \"test/*.test.mjs\"",
+    "overhead": "node bin/threadkeep.mjs overhead"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "UNLICENSED"
+}
