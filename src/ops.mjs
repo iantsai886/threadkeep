@@ -58,7 +58,7 @@ export function createOps({ home, env = process.env, userHome = os.homedir(), pl
     const s = findSpace(cfg, name);
     const connections = cfg.connections.map((c) => ({ ...c, grants: c.grants.filter((g) => g.space.toLowerCase() !== s.name.toLowerCase()) }));
     await saveConfig(home, { ...cfg, spaces: cfg.spaces.filter((x) => x !== s), connections });
-    return { removed: s.name, folder_kept: s.path };
+    return { removed: s.name, folder_kept: s.path, note: `"${s.name}" was removed from ${PRODUCT}. Its folder and every file in it were left as they are: ${s.path}` };
   }
 
   // ---- connections ----
@@ -110,7 +110,8 @@ export function createOps({ home, env = process.env, userHome = os.homedir(), pl
     await clearSeen(home, c.id);
     let removed = null;
     if (CLIENTS[c.client]) removed = await disconnectClient(c.client, clientOpts).catch((e) => ({ removed: false, error: e.message }));
-    return { revoked: c.id, name: c.name, key_refused_from_now: true, settings_entry_removed: Boolean(removed?.removed), ...(removed?.error ? { warning: removed.error } : {}) };
+    const entry = removed?.removed ? ` Its entry was removed from the app's settings (a copy of the previous file was kept).` : CLIENTS[c.client] ? ` Its entry could not be removed from the app's settings; the key no longer works either way.` : ` Remove the ${PRODUCT} entry from that app's settings yourself; the key no longer works either way.`;
+    return { revoked: c.id, name: c.name, key_refused_from_now: true, settings_entry_removed: Boolean(removed?.removed), ...(removed?.error ? { warning: removed.error } : {}), note: `"${c.name}" can no longer use ${PRODUCT}, starting with its next request.${entry}` };
   }
 
   async function connections(cfg) {

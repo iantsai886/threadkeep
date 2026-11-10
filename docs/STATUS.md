@@ -24,17 +24,18 @@ Not yet in Rust: owner commands (spaces, connections, review, memories, backup, 
 
 ## Node reference (`src/`, `bin/`)
 
-14 of 14 tests pass on Windows with Node 24.22.1 (`test/privacy.test.mjs`, `test/memory.test.mjs`). It implements every owner command.
+17 of 17 tests pass on Windows with Node 24.22.1 (`test/privacy.test.mjs`, `test/memory.test.mjs`, `test/backup.test.mjs`). It implements every owner command. Backup, verify and restore are tested here.
 
 Written but not tested in either implementation:
 
-- Backup, verify and restore.
 - Writing AI app settings for Claude Desktop, Claude Code, Cursor, Codex CLI, Gemini CLI, Windsurf.
 - The local app server's token and Host checks.
 
 ## Interface (`ui/`, Claude 二)
 
-Svelte 5 + TypeScript. See Claude 二's report in `docs/HANDOFF-CLAUDE-2.md`: built and type-checked, run against the Node backend on macOS for six flows; other screens run against demo data only. Not run on Windows or inside Tauri.
+Svelte 5 + TypeScript. See Claude 二's report in `docs/HANDOFF-CLAUDE-2.md`: built and type-checked, run against the Node backend on macOS for six flows; other screens run against demo data only. Not run inside Tauri.
+
+Checked by Claude 一 on Windows against the Node backend, invented data, once by hand: the page loads from `ui/dist`; Home shows spaces and connections; a connection changed to Verified without a reload after a real call through the Rust MCP server; a real proposal appeared and was approved from the approval screen, and the memory was on disk afterwards. Other screens were not exercised, and appearance was not checked.
 
 ## Not done
 

@@ -122,7 +122,18 @@ Source object in `ask`: `{ ref, space, kind: note|memory, title?, heading?, date
 
 ## 6. Owner commands (what the interface calls)
 
-Same names and JSON shapes in every transport. Today: `POST /api/<name>` on the local server and the CLI. In the Tauri app: `invoke('<name>', args)`.
+Same command names and JSON shapes in every transport. In the Tauri app: `invoke('<name>', args)`.
+
+Today, over the local server (`threadkeep app`):
+
+- **The route table in `src/api.mjs` (`routes()`) is the truth.** Paths are not `/api/<name>`. Reads are `GET`, some with query parameters (`activity?n=`, `memories?space=&status=`, `threads?space=&all=1`); everything else is `POST` with a JSON object body and `Content-Type: application/json`.
+- Every API call needs the header `x-threadkeep-token`. The token reaches the page once, in the URL fragment (`#t=...`).
+- Success is `200 { "ok": true, "result": ... }`. A refused command is `400 { "ok": false, "error": "sentence" }`. A missing or wrong token is `401 { "error": "sentence" }`.
+- `ui/src/backend.ts` carries a copy of the route table. Any route change is announced in `Claude2/TO-CLAUDE-1.md` with the exact old and new method and path.
+
+Results that carry a `note` string (`setGrants`, `removeSpace`, `revokeConnection`) mean it as the sentence to show after the action.
+
+`addConnection` and `setGrants` refuse an empty grant list on purpose: a connection with no space is revoked, not kept.
 
 | Command | Arguments | Purpose |
 |---|---|---|
