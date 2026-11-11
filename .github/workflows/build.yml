@@ -1,0 +1,63 @@
+# Builds Threadkeep on Windows, macOS and Linux and runs the tests.
+# Manual only (Actions tab -> Build -> Run workflow): it never runs on its own, so it cannot
+# use up the account's Actions minutes by surprise. Results are UNSIGNED development builds.
+# Signing for Windows and macOS needs certificates that only the account owner can supply;
+# see docs/ARCHITECTURE.md. This workflow has not been run yet.
+name: Build
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: windows-x64, os: windows-latest }
+          - { name: macos-arm64, os: macos-latest }
+          - { name: linux-x64, os: ubuntu-latest }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Rust tests
+        run: cargo test --workspace
+      - name: Release build
+        run: cargo build --release
+      - name: Build the interface (when ui/ is in the repository)
+        if: ${{ hashFiles('ui/package.json') != '' }}
+        working-directory: ui
+        run: |
+          npm ci
+          npm run build
+      - name: Package (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          VERSION=$(./target/release/threadkeep version)
+          NAME=Threadkeep-$VERSION-${{ matrix.name }}
+          mkdir -p dist/$NAME
+          cp target/release/threadkeep dist/$NAME/
+          if [ -d ui/dist ]; then cp -R ui/dist dist/$NAME/ui; fi
+          tar -C dist -czf dist/$NAME.tar.gz $NAME
+          (cd dist && shasum -a 256 $NAME.tar.gz > $NAME.tar.gz.sha256)
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./packaging/windows/package.ps1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: threadkeep-${{ matrix.name }}
+          path: |
+            dist/*.tar.gz
+            dist/*.zip
+            dist/*.sha256
+          if-no-files-found: error

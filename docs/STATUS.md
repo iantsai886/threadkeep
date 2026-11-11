@@ -48,10 +48,17 @@ Svelte 5 + TypeScript. See Claude 二's report in `docs/HANDOFF-CLAUDE-2.md`: bu
 
 Checked by Claude 一 on Windows against the Node backend, invented data, once by hand: the page loads from `ui/dist`; Home shows spaces and connections; a connection changed to Verified without a reload after a real call through the Rust MCP server; a real proposal appeared and was approved from the approval screen, and the memory was on disk afterwards. Other screens were not exercised, and appearance was not checked.
 
+## Packaging
+
+- **Windows portable package** (`packaging/windows/`): `package.ps1` builds `Threadkeep-<version>-windows-x64.zip` (0.5 MB: the 800 KB program, the built interface, install and uninstall scripts, a README) with a SHA-256 file. Checked on Windows 11 on 2026-11-11: build, checksum, unzip, install into a temporary folder without touching PATH, run the installed program on its own (found its interface, served the page, listed a space), uninstall (program removed, notes and settings kept). **Not checked:** `-AddToPath`, uninstall disconnecting a known AI app, a fresh machine without Rust or Node. Unsigned: Windows will warn about an unknown publisher.
+- **Linux and macOS:** the Rust code type-checks, including tests, for `x86_64-unknown-linux-gnu`, `aarch64-apple-darwin` and `x86_64-apple-darwin` (`cargo check --all-targets`, 2026-11-11). It has never been run on either. `.github/workflows/build.yml` builds, tests and packages all three platforms; it is manual-trigger only and **has not been run**.
+- **Signing:** not done. macOS signing and notarisation need the Apple Developer account's certificate; Windows signing needs a code-signing certificate. Both are the account owner's to provide.
+- **The interface is not in Git.** `ui/` (Claude 二's) is untracked, so a build from a clean clone has no interface until `ui/` is committed; the workflow builds it only when `ui/package.json` exists.
+
 ## Not done
 
 - Tauri desktop shell. Needs the Visual Studio C++ Build Tools on Windows; their installer was cancelled at the administrator prompt.
-- Installers for any platform; signing; updates; uninstall.
+- A real installer (MSI, DMG, DEB), signing, automatic updates.
 
 ## Not verified at all
 
