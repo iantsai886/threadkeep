@@ -25,6 +25,32 @@ test('backup verifies itself, restores into an empty folder, and the restored sp
   assert.equal(found.sources[0].kind, 'memory');
 });
 
+test('backups in a folder are listed newest first, and the last backup folder is remembered', async () => {
+  const w = await world();
+  assert.deepEqual(await w.ops.listBackups(), { dir: null, remembered: false, backups: [] });
+  const dest = path.join(w.base, 'backups');
+  const first = await w.ops.backup({ space: 'Northwind', dest });
+  await new Promise((r) => setTimeout(r, 5));
+  const second = await w.ops.backup({ space: 'Mira', dest });
+  await writeFile(path.join(dest, 'stray.txt'), 'not a backup');
+  const { mkdir } = await import('node:fs/promises');
+  await mkdir(path.join(dest, 'Holiday photos'));
+
+  const remembered = await w.ops.listBackups();
+  assert.equal(remembered.dir, dest);
+  assert.equal(remembered.remembered, true);
+  assert.deepEqual(remembered.backups.map((b) => b.dir), [second.backup, first.backup]);
+  assert.deepEqual(remembered.backups.map((b) => b.space), ['Mira', 'Northwind']);
+  assert.equal(remembered.backups[1].files, first.files);
+  assert.equal(remembered.backups[1].bytes, first.bytes);
+  assert.equal(remembered.backups[1].kind, 'company');
+
+  const named = await w.ops.listBackups({ dir: dest });
+  assert.equal(named.remembered, false);
+  assert.equal(named.backups.length, 2);
+  assert.deepEqual((await w.ops.listBackups({ dir: path.join(w.base, 'nowhere') })).backups, []);
+});
+
 test('a changed or incomplete backup is detected and never restored', async () => {
   const w = await world();
   const b = await w.ops.backup({ space: 'Northwind', dest: path.join(w.base, 'backups') });

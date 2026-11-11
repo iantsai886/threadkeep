@@ -149,6 +149,8 @@ Results that carry a `note` string (`setGrants`, `removeSpace`, `revokeConnectio
 | `memories` / `remember` / `retire` / `forget` | `space`, `id`, ... | memory management |
 | `threads` / `checkpoint` | `space?`, `all?` | work threads |
 | `backup` / `verifyBackup` / `restore` | `space`, `dest` / `dir` / `dir`, `target` | restore only into a new or empty folder |
+| `listBackups` | `dir?` | `{ dir, remembered, backups: [{ dir, space, kind, created, files, bytes }] }`, newest first. Without `dir`, uses the folder of the last backup made on this computer. Listed does not mean intact; `verifyBackup` checks that |
+| `pickFolder` (Tauri only, not built yet) | `title?` | `{ path }` or `{ path: null }` when cancelled. Reserved name for the native folder picker |
 | `activity` / `overhead` | | content-free log; size of the AI-facing surface |
 
 Errors are plain sentences meant to be shown to the user as they are.

@@ -30,6 +30,7 @@ Daily use
 
 Safety net
   threadkeep backup <space> <folder> | verify <backup-folder> | restore <backup-folder> <new-folder>
+  threadkeep backups [folder]   backups in a folder (default: where the last backup went)
   threadkeep activity [--n 30]  tool names and outcomes only, never content
   threadkeep overhead           size of what every AI conversation carries
 
@@ -115,6 +116,7 @@ async function main() {
     case 'threads': return print(await ops.threads({ space: one(flags), all: Boolean(flags.all) }));
 
     case 'backup': return print(await ops.backup({ space: pos[0], dest: pos[1] }));
+    case 'backups': return print(await ops.listBackups({ dir: pos[0] }));
     case 'verify': return print(await ops.verifyBackup({ dir: pos[0] }));
     case 'restore': return print(await ops.restore({ dir: pos[0], target: pos[1] }));
     case 'activity': return print(await ops.activity({ n: flags.n }));

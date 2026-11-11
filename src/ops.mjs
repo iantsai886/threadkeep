@@ -1,8 +1,8 @@
 // Owner operations, shared by the command line and the local app API so both behave the same.
 import os from 'node:os';
 import path from 'node:path';
-import { mkdir, readdir, stat, writeFile } from 'node:fs/promises';
-import { PRODUCT, VERSION, MANAGED_DIR, SPACE_KINDS, LEVELS, loadConfig, saveConfig, readSeen, clearSeen, readActivity, configPath } from './home.mjs';
+import { mkdir, readdir, readFile, stat, writeFile } from 'node:fs/promises';
+import { PRODUCT, VERSION, MANAGED_DIR, SPACE_KINDS, LEVELS, loadConfig, saveConfig, readSeen, clearSeen, readActivity, configPath, atomicWrite } from './home.mjs';
 import { newToken, newConnectionId, hashToken, ownerContext, previewContext, spaceFor } from './access.mjs';
 import { CLIENTS, connectClient, disconnectClient, detectClients, customSnippet, launchSpec } from './connectors.mjs';
 import { spaceExists, IGNORE_FILE } from './spaces.mjs';
@@ -11,7 +11,7 @@ import { listMemories, saveMemory, retireMemory, forgetMemory } from './memory.m
 import { listThreads, writeCheckpoint } from './threads.mjs';
 import { listPending, approvePending, rejectPending } from './pending.mjs';
 import { toolHandlers, overhead } from './mcp.mjs';
-import { backupSpace, verifyBackup, restoreBackup } from './backup.mjs';
+import { backupSpace, verifyBackup, restoreBackup, listBackups } from './backup.mjs';
 
 const WELCOME = `# Welcome\n\nThis folder is your knowledge base. It belongs to you: plain Markdown files you can read, edit, move or back up with any tool.\n\n- Write notes anywhere in this folder.\n- ${PRODUCT} keeps what your AIs remember in the \`${MANAGED_DIR}\` folder, as plain files too.\n- To hide one note from every AI, put \`private: true\` at the top of it between two \`---\` lines.\n- To hide a whole folder, list it in \`${IGNORE_FILE}\`, one folder per line.\n`;
 
@@ -21,6 +21,7 @@ const resolveHomePath = (p, home = os.homedir()) => path.resolve(String(p || '')
 export function createOps({ home, env = process.env, userHome = os.homedir(), platform = process.platform, launch } = {}) {
   const clientOpts = { home: userHome, env, platform };
   const load = () => loadConfig(home);
+  const lastBackupFile = path.join(home, 'last-backup.json');
 
   // ---- spaces ----
   async function addSpace({ path: folder, name, kind = 'personal', sensitive, create = false } = {}) {
@@ -176,7 +177,17 @@ export function createOps({ home, env = process.env, userHome = os.homedir(), pl
     pending: () => listPending(home),
     approve: async ({ id }) => approvePending(home, await load(), id),
     reject: ({ id }) => rejectPending(home, id),
-    backup: async ({ space: name, dest }) => backupSpace(await space(name), resolveHomePath(dest, userHome)),
+    backup: async ({ space: name, dest }) => {
+      const folder = resolveHomePath(dest, userHome);
+      const result = await backupSpace(await space(name), folder);
+      await atomicWrite(lastBackupFile, JSON.stringify({ dir: folder })).catch(() => {}); // remembered so the owner need not retype it
+      return result;
+    },
+    // dir omitted: the folder used for the most recent backup made on this computer, if any.
+    listBackups: async ({ dir } = {}) => {
+      const folder = dir ? resolveHomePath(dir, userHome) : await readFile(lastBackupFile, 'utf8').then((raw) => String(JSON.parse(raw).dir || ''), () => '');
+      return { dir: folder || null, remembered: !dir && Boolean(folder), backups: folder ? await listBackups(folder) : [] };
+    },
     verifyBackup: ({ dir }) => verifyBackup(resolveHomePath(dir, userHome)),
     restore: ({ dir, target }) => restoreBackup(resolveHomePath(dir, userHome), resolveHomePath(target, userHome)),
     activity: ({ n } = {}) => readActivity(home, Math.min(200, Number(n) || 30)),

@@ -43,6 +43,24 @@ export async function backupSpace(space, destRoot, now = new Date()) {
   return { backup: dest, files: files.length, bytes: files.reduce((n, f) => n + f.size, 0), verified: true };
 }
 
+// Backups directly inside one folder, newest first. Reads each manifest only; it does not
+// re-hash the files, so "listed" does not mean "intact". Use verifyBackup for that.
+export async function listBackups(root) {
+  let entries;
+  try { entries = await readdir(root, { withFileTypes: true }); } catch { return []; }
+  const out = [];
+  for (const e of entries) {
+    if (!e.isDirectory()) continue;
+    const dir = path.join(root, e.name);
+    try {
+      const m = JSON.parse(await readFile(path.join(dir, MANIFEST), 'utf8'));
+      if (m?.product !== 'Threadkeep' || !Array.isArray(m.files)) continue;
+      out.push({ dir, space: String(m.space || ''), kind: String(m.kind || ''), created: String(m.created || ''), files: m.files.length, bytes: m.files.reduce((n, f) => n + (Number(f.size) || 0), 0) });
+    } catch { /* not a backup folder */ }
+  }
+  return out.sort((a, b) => b.created.localeCompare(a.created));
+}
+
 export async function verifyBackup(dir) {
   let manifest;
   try { manifest = JSON.parse(await readFile(path.join(dir, MANIFEST), 'utf8')); } catch { return { ok: false, problems: ['This folder is not a Threadkeep backup (no readable manifest).'] }; }

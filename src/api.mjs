@@ -38,6 +38,7 @@ export function routes(ops) {
     'POST /api/memories/forget': (b) => ops.forget(b),
     'GET /api/threads': (b, url) => ops.threads({ space: q(url, 'space'), all: q(url, 'all') === '1' }),
     'POST /api/threads/checkpoint': (b) => ops.checkpoint(b),
+    'GET /api/backups': (b, url) => ops.listBackups({ dir: q(url, 'dir') }),
     'POST /api/backup': (b) => ops.backup(b),
     'POST /api/backup/verify': (b) => ops.verifyBackup(b),
     'POST /api/backup/restore': (b) => ops.restore(b),
