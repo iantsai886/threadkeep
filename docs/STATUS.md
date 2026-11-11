@@ -1,6 +1,6 @@
-﻿# Threadkeep status
+# Threadkeep status
 
-Updated 2026-11-10 by Claude ä¸€. Evidence levels are kept apart on purpose. All data in tests is invented.
+Updated 2026-11-10 by Claude 一. Evidence levels are kept apart on purpose. All data in tests is invented.
 
 ## Rust core (`crates/core`, `crates/cli`)
 
@@ -24,7 +24,7 @@ Also tested in Rust (`crates/core/tests/ops.rs`, invented settings files in a te
 
 Run by hand once on Windows with only the Rust program, invented data: connect a custom AI, ask, save (queued), approve, memories, owner ask, backup, list backups, doctor (exit 0), and the Node reference then read the same files and reported the connection as verified.
 
-`threadkeep app` (Rust) was checked over real HTTP: page and assets served from `ui/dist`; no key and wrong key refused (401); wrong Host refused (421); bad JSON, a refused command and an unknown route answered with sentences or 400/404; path traversal refused; POST to a page refused (405). Claude äºŒ's interface then loaded from it in the browser pane: Home showed both spaces, the sensitive mark and the connection, with no console errors, and the Backup screen loaded. Other screens were not exercised against the Rust server.
+`threadkeep app` (Rust) was checked over real HTTP: page and assets served from `ui/dist`; no key and wrong key refused (401); wrong Host refused (421); bad JSON, a refused command and an unknown route answered with sentences or 400/404; path traversal refused; POST to a page refused (405). Claude 二's interface then loaded from it in the browser pane: Home showed both spaces, the sensitive mark and the connection, with no console errors, and the Backup screen loaded. Other screens were not exercised against the Rust server.
 
 Not in Rust yet: the native folder picker (`pickFolder`) and the desktop shell.
 
@@ -42,11 +42,11 @@ Written but not tested in either implementation:
 
 - The local app server's token and Host checks.
 
-## Interface (`ui/`, Claude äºŒ)
+## Interface (`ui/`, Claude 二)
 
-Svelte 5 + TypeScript. See Claude äºŒ's report in `docs/HANDOFF-CLAUDE-2.md`: built and type-checked, run against the Node backend on macOS for six flows; other screens run against demo data only. Not run inside Tauri.
+Svelte 5 + TypeScript. See Claude 二's report in `docs/HANDOFF-CLAUDE-2.md`: built and type-checked, run against the Node backend on macOS for six flows; other screens run against demo data only. Not run inside Tauri.
 
-Checked by Claude ä¸€ on Windows against the Node backend, invented data, once by hand: the page loads from `ui/dist`; Home shows spaces and connections; a connection changed to Verified without a reload after a real call through the Rust MCP server; a real proposal appeared and was approved from the approval screen, and the memory was on disk afterwards. Other screens were not exercised, and appearance was not checked.
+Checked by Claude 一 on Windows against the Node backend, invented data, once by hand: the page loads from `ui/dist`; Home shows spaces and connections; a connection changed to Verified without a reload after a real call through the Rust MCP server; a real proposal appeared and was approved from the approval screen, and the memory was on disk afterwards. Other screens were not exercised, and appearance was not checked.
 
 ## Desktop app (Tauri) and Windows installer
 

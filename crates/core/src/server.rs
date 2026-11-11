@@ -1,4 +1,4 @@
-﻿//! `threadkeep app`: a small local server for the interface, used until the desktop shell
+//! `threadkeep app`: a small local server for the interface, used until the desktop shell
 //! exists. It listens on 127.0.0.1 only, needs a per-launch key on every API call, and checks
 //! the Host header so another website cannot reach it through the browser.
 //! The route table is the same as the Node reference (docs/CONTRACTS.md section 6).
