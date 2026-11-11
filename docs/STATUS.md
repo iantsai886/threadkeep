@@ -24,11 +24,16 @@ Not yet in Rust: owner commands (spaces, connections, review, memories, backup, 
 
 ## Node reference (`src/`, `bin/`)
 
-17 of 17 tests pass on Windows with Node 24.22.1 (`test/privacy.test.mjs`, `test/memory.test.mjs`, `test/backup.test.mjs`). It implements every owner command. Backup, verify and restore are tested here.
+22 of 22 tests pass on Windows with Node 24.22.1 (`test/privacy.test.mjs`, `test/memory.test.mjs`, `test/backup.test.mjs`, `test/connectors.test.mjs`). It implements every owner command. Backup, verify and restore are tested here.
+
+Connecting known AI apps is tested against invented settings files in a temporary folder (`test/connectors.test.mjs`): a JSON settings file (the Gemini CLI shape) and a Codex `config.toml`. Covered: one entry added, everything else kept, backup made, the written key works with exactly the granted access, reconnect replaces the key, revoke removes only Threadkeep's entry, unreadable or foreign entries are left untouched, a not-installed app is refused.
+
+**No real AI app's settings have been changed, and no real AI app has called Threadkeep.** An attempt from the development session on 2026-11-11 was blocked by that session's safety check before anything ran. The owner has to run the connect command himself.
+
+Known risk, not tested: Claude Code rewrites `~/.claude.json` while it runs, so an entry added while it is open may be lost. Close Claude Code before connecting it.
 
 Written but not tested in either implementation:
 
-- Writing AI app settings for Claude Desktop, Claude Code, Cursor, Codex CLI, Gemini CLI, Windsurf.
 - The local app server's token and Host checks.
 
 ## Interface (`ui/`, Claude 二)
