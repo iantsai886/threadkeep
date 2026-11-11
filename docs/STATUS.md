@@ -1,6 +1,6 @@
-# Threadkeep status
+﻿# Threadkeep status
 
-Updated 2026-11-10 by Claude 一. Evidence levels are kept apart on purpose. All data in tests is invented.
+Updated 2026-11-10 by Claude ä¸€. Evidence levels are kept apart on purpose. All data in tests is invented.
 
 ## Rust core (`crates/core`, `crates/cli`)
 
@@ -24,7 +24,7 @@ Also tested in Rust (`crates/core/tests/ops.rs`, invented settings files in a te
 
 Run by hand once on Windows with only the Rust program, invented data: connect a custom AI, ask, save (queued), approve, memories, owner ask, backup, list backups, doctor (exit 0), and the Node reference then read the same files and reported the connection as verified.
 
-`threadkeep app` (Rust) was checked over real HTTP: page and assets served from `ui/dist`; no key and wrong key refused (401); wrong Host refused (421); bad JSON, a refused command and an unknown route answered with sentences or 400/404; path traversal refused; POST to a page refused (405). Claude 二's interface then loaded from it in the browser pane: Home showed both spaces, the sensitive mark and the connection, with no console errors, and the Backup screen loaded. Other screens were not exercised against the Rust server.
+`threadkeep app` (Rust) was checked over real HTTP: page and assets served from `ui/dist`; no key and wrong key refused (401); wrong Host refused (421); bad JSON, a refused command and an unknown route answered with sentences or 400/404; path traversal refused; POST to a page refused (405). Claude äºŒ's interface then loaded from it in the browser pane: Home showed both spaces, the sensitive mark and the connection, with no console errors, and the Backup screen loaded. Other screens were not exercised against the Rust server.
 
 Not in Rust yet: the native folder picker (`pickFolder`) and the desktop shell.
 
@@ -42,11 +42,11 @@ Written but not tested in either implementation:
 
 - The local app server's token and Host checks.
 
-## Interface (`ui/`, Claude 二)
+## Interface (`ui/`, Claude äºŒ)
 
-Svelte 5 + TypeScript. See Claude 二's report in `docs/HANDOFF-CLAUDE-2.md`: built and type-checked, run against the Node backend on macOS for six flows; other screens run against demo data only. Not run inside Tauri.
+Svelte 5 + TypeScript. See Claude äºŒ's report in `docs/HANDOFF-CLAUDE-2.md`: built and type-checked, run against the Node backend on macOS for six flows; other screens run against demo data only. Not run inside Tauri.
 
-Checked by Claude 一 on Windows against the Node backend, invented data, once by hand: the page loads from `ui/dist`; Home shows spaces and connections; a connection changed to Verified without a reload after a real call through the Rust MCP server; a real proposal appeared and was approved from the approval screen, and the memory was on disk afterwards. Other screens were not exercised, and appearance was not checked.
+Checked by Claude ä¸€ on Windows against the Node backend, invented data, once by hand: the page loads from `ui/dist`; Home shows spaces and connections; a connection changed to Verified without a reload after a real call through the Rust MCP server; a real proposal appeared and was approved from the approval screen, and the memory was on disk afterwards. Other screens were not exercised, and appearance was not checked.
 
 ## Desktop app (Tauri) and Windows installer
 
@@ -61,19 +61,19 @@ Checked on Windows 11 on 2026-11-11, invented data, MSVC Rust toolchain:
 ## Packaging
 
 - **Windows portable package** (`packaging/windows/`): `package.ps1` builds `Threadkeep-<version>-windows-x64.zip` (0.5 MB: the 800 KB program, the built interface, install and uninstall scripts, a README) with a SHA-256 file. Checked on Windows 11 on 2026-11-11: build, checksum, unzip, install into a temporary folder without touching PATH, run the installed program on its own (found its interface, served the page, listed a space), uninstall (program removed, notes and settings kept). **Not checked:** `-AddToPath`, uninstall disconnecting a known AI app, a fresh machine without Rust or Node. Unsigned: Windows will warn about an unknown publisher.
-- **Linux and macOS:** the Rust code type-checks, including tests, for `x86_64-unknown-linux-gnu`, `aarch64-apple-darwin` and `x86_64-apple-darwin` (`cargo check --all-targets`, 2026-11-11). It has never been run on either. `.github/workflows/build.yml` builds, tests and packages all three platforms and is manual-trigger only. **It was started once on 2026-11-11 and GitHub refused to run any job:** "recent account payments have failed or your spending limit needs to be increased" (run 42946876290). That is an account billing setting, not a defect in the workflow, so the workflow itself is still untested. Docker Desktop on the development PC is installed but its engine does not start, so no local Linux build has been made either.
+- **Linux and macOS, cloud build (GitHub Actions, run 42947987181, 2026-11-11, after the repository was made public; the first run, 42947579878, failed on step order in the workflow and was fixed):** all three platform jobs (Windows, macOS Apple-silicon, Ubuntu) succeeded: interface built, command-line program built, **32 of 32 Rust tests passed on each of the three operating systems** (privacy, permissions, memories, threads, approvals, connector file editing on invented settings files, backup and restore), and the desktop installers were produced: `Threadkeep_0.1.0_amd64.deb` (2.05 MB), `Threadkeep_0.1.0_aarch64.dmg` (1.99 MB), `Threadkeep_0.1.0_x64-setup.exe` (1.34 MB), plus a command-line tarball or zip for each (about 0.4 MB). **What this does not show:** none of the macOS or Linux files has been opened, installed or run by a person on a real desktop; the tests exercised the core logic, not the window. All builds are unsigned: macOS will show a Gatekeeper warning and the dmg is Apple-silicon only (no Intel Mac build); Linux is amd64 only. Docker on the development PC does not start, so nothing was built locally for Linux.
 - **Signing:** not done. macOS signing and notarisation need the Apple Developer account's certificate; Windows signing needs a code-signing certificate. Both are the account owner's to provide.
 - **The interface is in Git** (`ui/`, committed 2026-11-11). A fresh clone from GitHub installs and builds it (`npm ci`, `npm run build`: built in about half a second, `ui/dist/index.html` present). The built `ui/dist` is not committed; builds make it. `Claude2/ui/` is a local duplicate and is not committed.
 
 ## Not done
 
-- Native folder picker; signing; macOS and Linux desktop builds (not run).
+- Native folder picker; signing and notarisation; Intel Mac and ARM Linux builds; opening the macOS and Linux installers on real desktops.
 - A real installer (MSI, DMG, DEB), signing, automatic updates.
 
 ## Not verified at all
 
 - Any real AI app loading and calling Threadkeep.
-- macOS and Linux builds of the Rust code. (An Apple Developer account is available for signing when a Mac build exists.)
+- Running the macOS and Linux installers on real machines (their builds and tests pass in the cloud; see Packaging). An Apple Developer account is available for signing and notarisation.
 - Answer quality, token use and speed in real use. The only figures are: 6 tools plus instructions total about 1,000 estimated tokens (characters / 4, not a provider count), and the 50 ms hand timing above on a three-note space.
 - Behaviour on large spaces, and with sync tools such as Drive or Dropbox.
 - Chinese, Japanese and Korean search (implemented as character pairs; untested).
