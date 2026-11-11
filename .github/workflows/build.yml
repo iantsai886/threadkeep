@@ -1,9 +1,7 @@
-# Builds Threadkeep on Windows, macOS and Linux and runs the tests.
-# Manual only (Actions tab -> Build -> Run workflow): it never runs on its own, so it cannot
-# use up the account's Actions minutes by surprise. Results are UNSIGNED development builds.
-# Signing for Windows and macOS needs certificates that only the account owner can supply;
-# see docs/ARCHITECTURE.md. This workflow has not been run yet, so it may need fixes on its
-# first run (the desktop installer steps on macOS and Linux are the least certain).
+# Builds Threadkeep on Windows, macOS and Linux, runs the tests, and builds the desktop installers.
+# Manual only (Actions tab -> Build -> Run workflow): it never runs on its own.
+# Results are UNSIGNED development builds. Signing for Windows and macOS needs certificates that
+# only the account owner can supply; see docs/ARCHITECTURE.md.
 name: Build
 on:
   workflow_dispatch:
@@ -15,7 +13,7 @@ jobs:
   build:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
@@ -29,21 +27,22 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Rust tests
-        run: cargo test --workspace
-      - name: Release build
-        run: cargo build --release
-      - name: Build the interface (when ui/ is in the repository)
-        if: ${{ hashFiles('ui/package.json') != '' }}
-        working-directory: ui
-        run: |
-          npm ci
-          npm run build
+      # The desktop crate's build script needs the interface and the command-line program to
+      # exist, and on Linux its system libraries, so all of that comes before any cargo test.
       - name: Linux system libraries for the desktop app
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+      - name: Build the interface
+        working-directory: ui
+        run: |
+          npm ci
+          npm run build
+      - name: Release build of the command-line program
+        run: cargo build --release -p threadkeep
+      - name: Rust tests
+        run: cargo test --workspace
       - name: Tauri command-line tool
         run: cargo install tauri-cli --version "^2" --locked
       - name: Desktop installer (Windows)
@@ -58,7 +57,7 @@ jobs:
         if: runner.os == 'Linux'
         working-directory: app/src-tauri
         run: cargo tauri build --bundles deb
-      - name: Package (Unix)
+      - name: Command-line package (Unix)
         if: runner.os != 'Windows'
         shell: bash
         run: |
@@ -66,10 +65,10 @@ jobs:
           NAME=Threadkeep-$VERSION-${{ matrix.name }}
           mkdir -p dist/$NAME
           cp target/release/threadkeep dist/$NAME/
-          if [ -d ui/dist ]; then cp -R ui/dist dist/$NAME/ui; fi
+          cp -R ui/dist dist/$NAME/ui
           tar -C dist -czf dist/$NAME.tar.gz $NAME
           (cd dist && shasum -a 256 $NAME.tar.gz > $NAME.tar.gz.sha256)
-      - name: Package (Windows)
+      - name: Command-line package (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: ./packaging/windows/package.ps1
