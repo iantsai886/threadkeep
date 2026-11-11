@@ -8,7 +8,9 @@ Your notes stay in your folder as ordinary files.
 
 **Status: early prototype, not ready for customers.** See [what works and what does not](docs/STATUS.md).
 
-## Try it (needs Node.js 22 or newer)
+## Try it
+
+Needs [Rust](https://rustup.rs) to build for now; there is no installer yet.
 
 ```bash
 git clone https://github.com/iantsai886/threadkeep.git
@@ -19,21 +21,28 @@ cd threadkeep
 ```
 
 ```bash
-node bin/threadkeep.mjs space add ~/Documents/MyNotes --create --kind personal
+cargo build --release
+```
+
+The program is `target/release/threadkeep` (`threadkeep.exe` on Windows). The commands below use that name.
+
+```bash
+threadkeep space add ~/Documents/MyNotes --create --kind personal
 ```
 
 ```bash
-node bin/threadkeep.mjs connect claude-desktop --space MyNotes:propose
+threadkeep connect claude-desktop --space MyNotes:propose
 ```
 
 ```bash
-node bin/threadkeep.mjs doctor
+threadkeep doctor
 ```
 
 Then fully quit and reopen the AI app, start a new chat and ask: "What can you do in Threadkeep?"
 `doctor` reports the connection as verified once the app has really called Threadkeep.
 
-Run `node bin/threadkeep.mjs help` for every command.
+`threadkeep app` opens the visual interface in your browser (this computer only). Run `threadkeep help`
+for every command. The earlier Node version still works as `node bin/threadkeep.mjs` with the same commands.
 
 ## How access works
 

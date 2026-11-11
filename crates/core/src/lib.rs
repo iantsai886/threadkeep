@@ -2,10 +2,13 @@
 //! server AI apps launch, and the desktop app. Contracts: docs/CONTRACTS.md.
 
 pub mod access;
+pub mod backup;
+pub mod connectors;
 pub mod home;
 pub mod markdown;
 pub mod mcp;
 pub mod memory;
+pub mod ops;
 pub mod pending;
 pub mod search;
 pub mod spaces;

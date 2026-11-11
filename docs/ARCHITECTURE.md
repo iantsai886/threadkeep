@@ -8,9 +8,10 @@ Adopt a Rust core, a Tauri desktop shell and a TypeScript interface, for Windows
 The Node code in `src/` becomes the reference prototype and the executable specification. It is
 replaced module by module, not thrown away in one step.
 
-**Status: core ported, shell not started.** `crates/core` and the `threadkeep mcp` server in
-`crates/cli` build and pass their tests on Windows (see `docs/STATUS.md`). The Tauri shell is not
-started: it needs the Visual Studio C++ Build Tools, which are not installed. Statements below
+**Status: core and command line ported, shell not started.** `crates/core` (rules, owner commands,
+connectors, backup) and `crates/cli` (`threadkeep` with every command, `mcp`, and a local `app`
+server for the interface) build and pass their tests on Windows (see `docs/STATUS.md`). The Tauri
+shell is not started: it needs the Visual Studio C++ Build Tools, which are not installed. Statements below
 about installers, macOS and Linux are still unverified.
 
 ## Why the stack fits

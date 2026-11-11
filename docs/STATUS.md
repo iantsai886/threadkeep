@@ -4,7 +4,7 @@ Updated 2026-11-10 by Claude 一. Evidence levels are kept apart on purpose. All
 
 ## Rust core (`crates/core`, `crates/cli`)
 
-Built and tested on Windows with Rust 1.99.1 (`x86_64-pc-windows-gnu` toolchain). 23 of 23 tests pass.
+Built and tested on Windows with Rust 1.99.1 (`x86_64-pc-windows-gnu` toolchain). 31 of 31 tests pass. The Rust program (`threadkeep.exe`, 800 KB release build) now covers every command the Node reference has, including `threadkeep app`, so the product no longer needs Node to run. Node stays as the reference the tests were first written against.
 
 | Capability | Evidence |
 |---|---|
@@ -20,7 +20,13 @@ Built and tested on Windows with Rust 1.99.1 (`x86_64-pc-windows-gnu` toolchain)
 | `threadkeep mcp` (the program AI apps launch): 625 KB release binary; four requests in about 50 ms including process start | Run by hand once |
 | Rust server and Node owner tools work on the same files and settings | Run by hand once: Rust queued a proposal and wrote a checkpoint, Node approved and listed them |
 
-Not yet in Rust: owner commands (spaces, connections, review, memories, backup, doctor), writing AI app settings, backup and restore. Use the Node command line for those until they are ported.
+Also tested in Rust (`crates/core/tests/ops.rs`, invented settings files in a temporary user home, no real app touched): spaces (add, create, overlap refusal, sensitive default, remove keeps folder); connecting a JSON-settings app and Codex's TOML (entry added, key order and other settings kept, byte-exact backup, working key with granted access only, reconnect replaces key, revoke removes only our entry, unreadable or foreign entries left untouched, not-installed refused); doctor with fix sentences; "see as this AI" never writes; backup, verify, list, restore, tamper detection.
+
+Run by hand once on Windows with only the Rust program, invented data: connect a custom AI, ask, save (queued), approve, memories, owner ask, backup, list backups, doctor (exit 0), and the Node reference then read the same files and reported the connection as verified.
+
+`threadkeep app` (Rust) was checked over real HTTP: page and assets served from `ui/dist`; no key and wrong key refused (401); wrong Host refused (421); bad JSON, a refused command and an unknown route answered with sentences or 400/404; path traversal refused; POST to a page refused (405). Claude 二's interface then loaded from it in the browser pane: Home showed both spaces, the sensitive mark and the connection, with no console errors, and the Backup screen loaded. Other screens were not exercised against the Rust server.
+
+Not in Rust yet: the native folder picker (`pickFolder`) and the desktop shell.
 
 ## Node reference (`src/`, `bin/`)
 
@@ -45,7 +51,6 @@ Checked by Claude 一 on Windows against the Node backend, invented data, once b
 ## Not done
 
 - Tauri desktop shell. Needs the Visual Studio C++ Build Tools on Windows; their installer was cancelled at the administrator prompt.
-- Rust port of the owner commands, connectors and backup.
 - Installers for any platform; signing; updates; uninstall.
 
 ## Not verified at all
