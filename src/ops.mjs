@@ -31,7 +31,7 @@ export function createOps({ home, env = process.env, userHome = os.homedir(), pl
     if (!SPACE_KINDS.includes(kind)) throw new Error(`kind must be one of: ${SPACE_KINDS.join(', ')}.`);
     const st = await stat(full).catch(() => null);
     if (st && !st.isDirectory()) throw new Error('That path is a file, not a folder.');
-    if (!st && !create) throw new Error(`Folder not found: ${full}. Use "create" to make a new empty knowledge base there.`);
+    if (!st && !create) throw new Error(`Folder not found: ${full}. To start a new, empty knowledge base there, choose to create the folder (command line: add --create).`);
     for (const s of cfg.spaces) {
       const other = path.resolve(s.path);
       if (other === full || other.startsWith(full + path.sep) || full.startsWith(other + path.sep)) throw new Error(`That folder overlaps the space "${s.name}". Spaces must be separate folders so their contents never mix.`);

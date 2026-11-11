@@ -97,7 +97,7 @@ impl Ops {
             Err(_) => false,
         };
         if !existed && flag(a, "create") != Some(true) {
-            bail!("Folder not found: {}. Use \"create\" to make a new empty knowledge base there.", full.display());
+            bail!("Folder not found: {}. To start a new, empty knowledge base there, choose to create the folder (command line: add --create).", full.display());
         }
         let key = folder_key(&full);
         for s in &cfg.spaces {
