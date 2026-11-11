@@ -2,7 +2,8 @@
 # Manual only (Actions tab -> Build -> Run workflow): it never runs on its own, so it cannot
 # use up the account's Actions minutes by surprise. Results are UNSIGNED development builds.
 # Signing for Windows and macOS needs certificates that only the account owner can supply;
-# see docs/ARCHITECTURE.md. This workflow has not been run yet.
+# see docs/ARCHITECTURE.md. This workflow has not been run yet, so it may need fixes on its
+# first run (the desktop installer steps on macOS and Linux are the least certain).
 name: Build
 on:
   workflow_dispatch:
@@ -38,6 +39,25 @@ jobs:
         run: |
           npm ci
           npm run build
+      - name: Linux system libraries for the desktop app
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+      - name: Tauri command-line tool
+        run: cargo install tauri-cli --version "^2" --locked
+      - name: Desktop installer (Windows)
+        if: runner.os == 'Windows'
+        working-directory: app/src-tauri
+        run: cargo tauri build --bundles nsis
+      - name: Desktop installer (macOS)
+        if: runner.os == 'macOS'
+        working-directory: app/src-tauri
+        run: cargo tauri build --bundles dmg
+      - name: Desktop installer (Linux)
+        if: runner.os == 'Linux'
+        working-directory: app/src-tauri
+        run: cargo tauri build --bundles deb
       - name: Package (Unix)
         if: runner.os != 'Windows'
         shell: bash
@@ -60,4 +80,7 @@ jobs:
             dist/*.tar.gz
             dist/*.zip
             dist/*.sha256
+            target/release/bundle/nsis/*.exe
+            target/release/bundle/dmg/*.dmg
+            target/release/bundle/deb/*.deb
           if-no-files-found: error

@@ -1,0 +1,3 @@
+{
+  "bundle": { "resources": { "../../target/release/threadkeep": "threadkeep" } }
+}

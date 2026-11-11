@@ -10,6 +10,7 @@ pub mod mcp;
 pub mod memory;
 pub mod ops;
 pub mod pending;
+pub mod server;
 pub mod search;
 pub mod spaces;
 pub mod threads;

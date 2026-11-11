@@ -1,4 +1,4 @@
-//! `threadkeep app`: a small local server for the interface, used until the desktop shell
+﻿//! `threadkeep app`: a small local server for the interface, used until the desktop shell
 //! exists. It listens on 127.0.0.1 only, needs a per-launch key on every API call, and checks
 //! the Host header so another website cannot reach it through the browser.
 //! The route table is the same as the Node reference (docs/CONTRACTS.md section 6).
@@ -8,8 +8,8 @@ use std::io::{BufRead, BufReader, Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::path::{Path, PathBuf};
 use std::time::Duration;
-use threadkeep_core::home::random_hex;
-use threadkeep_core::ops::Ops;
+use crate::home::random_hex;
+use crate::ops::Ops;
 
 /// (method, path) -> (owner command, query parameters it accepts)
 const ROUTES: [(&str, &str, &str, &[&str]); 27] = [
@@ -49,7 +49,13 @@ const CSP: &str = "Content-Security-Policy: default-src 'self'; img-src 'self' d
 /// The built interface: THREADKEEP_UI, or a `ui` folder beside the program, or the
 /// repository's `ui/dist` when run from a development build.
 pub fn find_ui() -> Option<PathBuf> {
-    let mut candidates: Vec<PathBuf> = std::env::var("THREADKEEP_UI").ok().filter(|v| !v.is_empty()).map(PathBuf::from).into_iter().collect();
+    find_ui_in(&[])
+}
+
+/// Like `find_ui`, but also tries the given folders first (for example an app's bundled resources).
+pub fn find_ui_in(extra: &[PathBuf]) -> Option<PathBuf> {
+    let mut candidates: Vec<PathBuf> = extra.to_vec();
+    candidates.extend(std::env::var("THREADKEEP_UI").ok().filter(|v| !v.is_empty()).map(PathBuf::from));
     if let Ok(exe) = std::env::current_exe() {
         if let Some(dir) = exe.parent() {
             candidates.push(dir.join("ui"));

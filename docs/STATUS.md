@@ -48,6 +48,16 @@ Svelte 5 + TypeScript. See Claude 二's report in `docs/HANDOFF-CLAUDE-2.md`: bu
 
 Checked by Claude 一 on Windows against the Node backend, invented data, once by hand: the page loads from `ui/dist`; Home shows spaces and connections; a connection changed to Verified without a reload after a real call through the Rust MCP server; a real proposal appeared and was approved from the approval screen, and the memory was on disk afterwards. Other screens were not exercised, and appearance was not checked.
 
+## Desktop app (Tauri) and Windows installer
+
+Checked on Windows 11 on 2026-11-11, invented data, MSVC Rust toolchain:
+
+- `app/src-tauri` builds a 3.4 MB desktop program (`threadkeep-desktop.exe`). It opens a native window titled "Threadkeep" that shows the unchanged interface from a small local server running inside the program (127.0.0.1 only, fresh key per launch; calls without the key are refused). I captured the window: Home showed the invented space and the empty connection and approval panels.
+- AI apps are always pointed at the small `threadkeep` program beside the desktop program, never at the window (unit test `ai_apps_launch_the_command_line_program_not_the_desktop_window`).
+- `cargo tauri build --bundles nsis` produced `Threadkeep_0.1.0_x64-setup.exe` (1.34 MB, unsigned, SHA-256 `1d4dda0b57e50b07c5d7380e4d37a6631e111bca7e4086ffe543ee7b3bcb14f7`). The earlier build of the same installer was silently installed to a temporary folder, run (installed desktop program opened its window and served the bundled interface; `threadkeep.exe` present beside it), then uninstalled: program files, Start Menu shortcut and registry entry were gone and no process remained. The final rebuild changed only the bundling configuration; it was not reinstalled.
+- Not checked: whether uninstall offers to keep or delete settings; installing to the default location; upgrade over an older version; running on a machine without the Edge WebView2 runtime; the native folder picker (`pickFolder`, not built: the interface still uses a text field).
+- Design note: the window uses the local server rather than native calls, so the interface needed no change. A native `run(command, args)` command exists for a later switch.
+
 ## Packaging
 
 - **Windows portable package** (`packaging/windows/`): `package.ps1` builds `Threadkeep-<version>-windows-x64.zip` (0.5 MB: the 800 KB program, the built interface, install and uninstall scripts, a README) with a SHA-256 file. Checked on Windows 11 on 2026-11-11: build, checksum, unzip, install into a temporary folder without touching PATH, run the installed program on its own (found its interface, served the page, listed a space), uninstall (program removed, notes and settings kept). **Not checked:** `-AddToPath`, uninstall disconnecting a known AI app, a fresh machine without Rust or Node. Unsigned: Windows will warn about an unknown publisher.
@@ -57,7 +67,7 @@ Checked by Claude 一 on Windows against the Node backend, invented data, once b
 
 ## Not done
 
-- Tauri desktop shell. Needs the Visual Studio C++ Build Tools on Windows; their installer was cancelled at the administrator prompt.
+- Native folder picker; signing; macOS and Linux desktop builds (not run).
 - A real installer (MSI, DMG, DEB), signing, automatic updates.
 
 ## Not verified at all

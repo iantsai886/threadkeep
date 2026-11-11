@@ -1,0 +1,15 @@
+[package]
+name = "threadkeep-desktop"
+description = "Threadkeep desktop app: a window around the same core and interface."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+threadkeep-core = { path = "../../crates/core" }
+serde_json.workspace = true

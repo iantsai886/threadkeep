@@ -85,11 +85,43 @@ pub struct Launch {
     pub args: Vec<String>,
 }
 
+/// The program AI apps should launch, given the path of the running program. When the running
+/// program is the desktop app (or anything not called `threadkeep`), AI apps must still start the
+/// small `threadkeep` command-line program that sits beside it (or in `../Resources` on macOS),
+/// never the desktop window.
+pub fn cli_beside(current: &Path) -> PathBuf {
+    let name = if cfg!(windows) { "threadkeep.exe" } else { "threadkeep" };
+    let stem = current.file_stem().map(|s| s.to_string_lossy().to_lowercase()).unwrap_or_default();
+    if stem == "threadkeep" {
+        return current.to_path_buf();
+    }
+    let dir = current.parent().unwrap_or(Path::new("."));
+    [dir.join(name), dir.join("..").join("Resources").join(name)].into_iter().find(|p| p.is_file()).unwrap_or_else(|| current.to_path_buf())
+}
+
 impl Launch {
-    /// This very program, started as `threadkeep mcp`.
+    /// The `threadkeep` program, started as `threadkeep mcp`.
     pub fn this_program() -> Self {
-        let exe = std::env::current_exe().map(|p| p.to_string_lossy().into_owned()).unwrap_or_else(|_| "threadkeep".into());
+        let exe = std::env::current_exe().map(|p| cli_beside(&p).to_string_lossy().into_owned()).unwrap_or_else(|_| "threadkeep".into());
         Launch { command: exe, args: vec!["mcp".into()] }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn ai_apps_launch_the_command_line_program_not_the_desktop_window() {
+        let dir = std::env::temp_dir().join(format!("threadkeep-launch-{}", crate::home::random_hex(4)));
+        std::fs::create_dir_all(&dir).unwrap();
+        let cli = dir.join(if cfg!(windows) { "threadkeep.exe" } else { "threadkeep" });
+        let desktop = dir.join(if cfg!(windows) { "threadkeep-desktop.exe" } else { "threadkeep-desktop" });
+        assert_eq!(cli_beside(&cli), cli, "the command-line program launches itself");
+        assert_eq!(cli_beside(&desktop), desktop, "no sibling present: falls back to the running program");
+        std::fs::write(&cli, "x").unwrap();
+        assert_eq!(cli_beside(&desktop), cli, "desktop app points AI apps at the sibling command-line program");
+        let _ = std::fs::remove_dir_all(&dir);
     }
 }
 

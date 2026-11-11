@@ -1,9 +1,8 @@
 //! Threadkeep command line. Everything the product does is reachable from here, and
 //! `threadkeep mcp` is the program AI apps launch.
 
-mod app;
-
 use serde_json::{json, Map, Value};
+use threadkeep_core::server as app;
 use std::io::{BufRead, Write};
 use threadkeep_core::access::connection_context;
 use threadkeep_core::connectors::client_ids;
